@@ -1,4 +1,5 @@
-function fig = eegformat()
+function fig = eegformat(met)
+% met = 'byframe' or 'bynode'
 
 %% Initialise window
 fig = figure('InnerPosition', [100 100 900 900]);
@@ -28,7 +29,7 @@ d8  = tricircle(ax, res, [i2n*0.4 0], [0 i2n/2], [0 -i2n/2], i2n/2);
 d10 = tricircle(ax, res, [i2n*0.5 0], [0 i2n/2], [0 -i2n/2], i2n/2);
 [d10.XData(d10.XData < 0), d10.YData(d10.XData < 0)] = deal(NaN);
 ver = [d9 d7 d5 d3 d1 dz d2 d4 d6 d8 d10];
-verNm = ["d9" "d7" "d5" "d3" "d1" "dz" "d2" "d4" "d6" "d8" "d10"];
+verNm = {'9' '7' '5' '3' '1' 'z' '2' '4' '6' '8' '10'};
 
 %% Draw coronal lines
 Fp = tricircle(ax, res, [0 i2n*0.4], [i2n/2 i2n*0.5], [-i2n/2 i2n*0.5], i2n/2);
@@ -41,93 +42,117 @@ P  = tricircle(ax, res, [0 -i2n*0.2], [i2n/2 -i2n*0.3], [-i2n/2 -i2n*0.3], i2n/2
 PO = tricircle(ax, res, [0 -i2n*0.3], [i2n/2 -i2n*0.4], [-i2n/2 -i2n*0.4], i2n/2);
 O  = tricircle(ax, res, [0 -i2n*0.4], [i2n/2 -i2n*0.5], [-i2n/2 -i2n*0.5], i2n/2);
 hor = [Fp AF F FC C CP P PO O];
-horNm = ["Fp" "AF" "F" "FC" "C" "CP" "P" "PO" "O"];
+horNm = {'Fp' 'AF' 'F' 'FC' 'C' 'CP' 'P' 'PO' 'O'};
 
 %% Draw electrode points
 for h = hor
     for v = ver
         [rows, dists] = dsearchn( [v.XData' v.YData'], [h.XData' h.YData'] ); % Calculate distances between points of each circle
         i = rows(dists == min(dists)); % Get index of closest point
-        hNm = horNm(hor == h);
-        vNm = verNm(ver == v);
-        if strcmp(hNm, "C") && any( strcmp(vNm, ["d7", "d9", "d8", "d10"]) )
-            hNm = "T";
+        hNm = horNm{hor == h};
+        vNm = verNm{ver == v};
+        if strcmp(hNm, 'C') && any( strcmp(vNm, ['7', '9', '8', '10']) )
+            hNm = 'T';
         end
-        if strcmp(hNm, "FC") && any( strcmp(vNm, ["d7", "d9", "d8", "d10"]) )
-            hNm = "FT";
+        if strcmp(hNm, 'FC') && any( strcmp(vNm, ['7', '9', '8', '10']) )
+            hNm = 'FT';
         end
-        if strcmp(hNm, "CP") && any( strcmp(vNm, ["d7", "d9", "d8", "d10"]) )
-            hNm = "TP";
+        if strcmp(hNm, 'CP') && any( strcmp(vNm, ['7', '9', '8', '10']) )
+            hNm = 'TP';
         end
-        fig.UserData.Nodes.(hNm).(vNm) = text(ax, v.XData(i), v.YData(i), [hNm{:} erase(vNm{:}, 'd')]);
+        fig.UserData.Nodes.([hNm vNm]) = text(ax, v.XData(i), v.YData(i), [hNm vNm]);
     end
 end
-fig.UserData.Nodes.A.d1 = text(ax, mean([-i2n/2, -0.5]), 0, "A1");
-fig.UserData.Nodes.A.d2 = text(ax, mean([ i2n/2,  0.5]), 0, "A2");
+fig.UserData.Nodes.A.d1 = text(ax, mean([-i2n/2, -0.5]), 0, 'A1');
+fig.UserData.Nodes.A.d2 = text(ax, mean([ i2n/2,  0.5]), 0, 'A2');
 
 set(findobj(ax, 'Type', 'text'), ...
     'BackgroundColor', 'k', ...
     'Color', 'w', ...
-    'ButtonDownFcn', @nodespec ...
+    'UserData', struct('RawData', [], 'ProcessedData', []) ...
     );
 
 %% Draw buttons
 done = text(ax, i2n/2, -i2n/2, "Done", 'BackgroundColor', 'b', 'Color', 'w', 'ButtonDownFcn', @saveclose);
 
-
-%% Read in model frame
-time = text(ax, i2n/2, i2n/2, "Time", 'BackgroundColor', 'b', 'Color', 'k', 'ButtonDownFcn', @framespec);
-fig.UserData.Model = edfread(uigetfile('*.edf'))
+switch met
+    case 'byframe'
+        %% Read in data file
+        [file path] = uigetfile('*.edf');
+        fig.UserData.Model = edfread([path file]);
+        set(findobj(ax, 'Type', 'text'), ...
+            'ButtonDownFcn', @byframe ...
+            );
+        time = text(ax, i2n/2, i2n/2, "Time", 'BackgroundColor', 'b', 'Color', 'w', 'ButtonDownFcn', @framespec);
+    case 'bynode'
+        set(findobj(ax, 'Type', 'text'), ...
+            'ButtonDownFcn', @bynode ...
+            );
+        
+        app.UserData.RawData = uiimport;
+        cols = fieldnames(app.UserData.RawData);
+        dcol = listdlg(...
+             'SelectionMode', 'single', ...
+             'ListSize', [250 300], ...
+             'PromptString', "Which variable contains data?", ...
+             'ListString', cols ...
+             );
+         app.UserData.RawData = app.UserData.RawData.(cols{dcol});
+end
 
 
 
 %% Functions
 
-    function byframe(app, ~)
-        app.Parent.Parent.UserData.Model
-        % Add tunnelling function to get at data point & record process to
-        % get there
+    function byframe(app, event)
+        
+        
     end
     function bynode(app, ~)
-        raw = uiimport;
-        cols = fieldnames(raw);
-        tcol = listdlg(...
-            'SelectionMode', 'single', ...
-            'ListSize', [250 300], ...
-            'PromptString', "Which column of data file is timestamps?", ...
-            'ListString', cols ...
-            );
-        dcol = listdlg(...
-            'SelectionMode', 'single', ...
-            'ListSize', [250 300], ...
-            'PromptString', "Which column of data file is raw electrode data?", ...
-            'ListString', cols ...
-            );
-        if length(raw.(cols{tcol})) ~= length(raw.(cols{dcol}))
-            error("Data and timestamp columns must be the same length");
-        end
-        fcols = cols(1:end ~= tcol & 1:end ~= dcol);
-        if length(cols) > 2
-            ocol = listdlg(...
-                'SelectionMode', 'multiple', ...
-                'ListSize', [250 300], ...
-                'PromptString', "What other columns would you like to include?", ...
-                'ListString', fcols ...
-                );
-            for col = ocol
-                if length(raw.(fcols{col})) ~= length(raw.(cols{tcol})) || length(raw.(fcols{col})) ~= length(raw.(cols{dcol}))
-                    error("Additional columns must match data and time columns in length");
-                end
-            end
-        else
-            ocol = [];
-        end
         
-        app.UserData = table(raw.(cols{tcol}), raw.(cols{dcol}), 'VariableNames', ["Time" "EEG"]);
-        for col = ocol
-            app.UserData.(fcols{col}) = raw.(fcols{col});
-        end
         
+        
+        app.UserData.RawData = uiimport;
+        app.UserData.ProcessedData = repmat(struct('Time', NaN, 'Sample', NaN), 2, 1);
+%         cols = fieldnames(raw);
+%         tcol = listdlg(...
+%             'SelectionMode', 'single', ...
+%             'ListSize', [250 300], ...
+%             'PromptString', "Which column of data file is timestamps?", ...
+%             'ListString', cols ...
+%             );
+%         dcol = listdlg(...
+%             'SelectionMode', 'single', ...
+%             'ListSize', [250 300], ...
+%             'PromptString', "Which column of data file is raw electrode data?", ...
+%             'ListString', cols ...
+%             );
+%         if length(raw.(cols{tcol})) ~= length(raw.(cols{dcol}))
+%             error("Data and timestamp columns must be the same length");
+%         end
+%         fcols = cols(1:end ~= tcol & 1:end ~= dcol);
+%         if length(cols) > 2
+%             ocol = listdlg(...
+%                 'SelectionMode', 'multiple', ...
+%                 'ListSize', [250 300], ...
+%                 'PromptString', "What other columns would you like to include?", ...
+%                 'ListString', fcols ...
+%                 );
+%             for col = ocol
+%                 if length(raw.(fcols{col})) ~= length(raw.(cols{tcol})) || length(raw.(fcols{col})) ~= length(raw.(cols{dcol}))
+%                     error("Additional columns must match data and time columns in length");
+%                 end
+%             end
+%         else
+%             ocol = [];
+%         end
+%         
+%         app.UserData = table(raw.(cols{tcol}), raw.(cols{dcol}), 'VariableNames', ["Time" "EEG"]);
+%         for col = ocol
+%             app.UserData.(fcols{col}) = raw.(fcols{col});
+%         end
+        openvar(['fig.UserData.Nodes.' app.String '.UserData.RawData'])
+        openvar(['fig.UserData.Nodes.' app.String '.UserData.ProcessedData'])
         app.BackgroundColor = [0 0.5 0.2];
     end
 
