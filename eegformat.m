@@ -12,35 +12,36 @@ ax = axes(...
 hold on
 i2n = 0.8;
 res = max(fig.Position(3:4));
+lim = i2n/2;
 head = rectangle(ax, 'Position', [i2n/-2 i2n/-2 i2n i2n], 'Curvature', [1 1], 'FaceColor', 'w');
 
 %% Draw saggital guides
-d9  = tricircle(ax, res, [-i2n*0.5 0], [0 i2n/2], [0 -i2n/2], i2n/2);
+d9  = tricircle(ax, res, [-i2n*0.5, 0; 0, i2n/2; 0, -i2n/2], lim);
 [d9.XData(d9.XData > 0), d9.YData(d9.XData > 0)] = deal(NaN);
-d7  = tricircle(ax, res, [-i2n*0.4 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d5  = tricircle(ax, res, [-i2n*0.3 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d3  = tricircle(ax, res, [-i2n*0.2 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d1  = tricircle(ax, res, [-i2n*0.1 0], [0 i2n/2], [0 -i2n/2], i2n/2);
+d7  = tricircle(ax, res, [-i2n*0.4, 0; 0, i2n/2; 0, -i2n/2], lim);
+d5  = tricircle(ax, res, [-i2n*0.3, 0; 0, i2n/2; 0, -i2n/2], lim);
+d3  = tricircle(ax, res, [-i2n*0.2, 0; 0, i2n/2; 0, -i2n/2], lim);
+d1  = tricircle(ax, res, [-i2n*0.1, 0; 0, i2n/2; 0, -i2n/2], lim);
 dz  = line(ax, zeros(size(-i2n/2:i2n/res:i2n/2)), -i2n/2:i2n/res:i2n/2, 'Color', 'k');
-d2  = tricircle(ax, res, [i2n*0.1 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d4  = tricircle(ax, res, [i2n*0.2 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d6  = tricircle(ax, res, [i2n*0.3 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d8  = tricircle(ax, res, [i2n*0.4 0], [0 i2n/2], [0 -i2n/2], i2n/2);
-d10 = tricircle(ax, res, [i2n*0.5 0], [0 i2n/2], [0 -i2n/2], i2n/2);
+d2  = tricircle(ax, res, [ i2n*0.1, 0; 0, i2n/2; 0, -i2n/2], lim);
+d4  = tricircle(ax, res, [ i2n*0.2, 0; 0, i2n/2; 0, -i2n/2], lim);
+d6  = tricircle(ax, res, [ i2n*0.3, 0; 0, i2n/2; 0, -i2n/2], lim);
+d8  = tricircle(ax, res, [ i2n*0.4, 0; 0, i2n/2; 0, -i2n/2], lim);
+d10 = tricircle(ax, res, [ i2n*0.5, 0; 0, i2n/2; 0, -i2n/2], lim);
 [d10.XData(d10.XData < 0), d10.YData(d10.XData < 0)] = deal(NaN);
 ver = [d9 d7 d5 d3 d1 dz d2 d4 d6 d8 d10];
 verNm = {'9' '7' '5' '3' '1' 'z' '2' '4' '6' '8' '10'};
 
 %% Draw coronal lines
-Fp = tricircle(ax, res, [0 i2n*0.4], [i2n/2 i2n*0.5], [-i2n/2 i2n*0.5], i2n/2);
-AF = tricircle(ax, res, [0 i2n*0.3], [i2n/2 i2n*0.4], [-i2n/2 i2n*0.4], i2n/2);
-F  = tricircle(ax, res, [0 i2n*0.2], [i2n/2 i2n*0.3], [-i2n/2 i2n*0.3], i2n/2);
-FC = tricircle(ax, res, [0 i2n*0.1], [i2n/2 i2n*0.2], [-i2n/2 i2n*0.2], i2n/2);
+Fp = tricircle(ax, res, [0,  i2n*0.4; i2n/2,  i2n*0.5; -i2n/2,  i2n*0.5], lim);
+AF = tricircle(ax, res, [0,  i2n*0.3; i2n/2,  i2n*0.4; -i2n/2,  i2n*0.4], lim);
+F  = tricircle(ax, res, [0,  i2n*0.2; i2n/2,  i2n*0.3; -i2n/2,  i2n*0.3], lim);
+FC = tricircle(ax, res, [0,  i2n*0.1; i2n/2,  i2n*0.2; -i2n/2,  i2n*0.2], lim);
 C  = line(ax, -i2n/2:i2n/res:i2n/2, zeros(size(-i2n/2:i2n/res:i2n/2)), 'Color', [0 0 0]);
-CP = tricircle(ax, res, [0 -i2n*0.1], [i2n/2 -i2n*0.2], [-i2n/2 -i2n*0.2], i2n/2);
-P  = tricircle(ax, res, [0 -i2n*0.2], [i2n/2 -i2n*0.3], [-i2n/2 -i2n*0.3], i2n/2);
-PO = tricircle(ax, res, [0 -i2n*0.3], [i2n/2 -i2n*0.4], [-i2n/2 -i2n*0.4], i2n/2);
-O  = tricircle(ax, res, [0 -i2n*0.4], [i2n/2 -i2n*0.5], [-i2n/2 -i2n*0.5], i2n/2);
+CP = tricircle(ax, res, [0, -i2n*0.1; i2n/2, -i2n*0.2; -i2n/2, -i2n*0.2], lim);
+P  = tricircle(ax, res, [0, -i2n*0.2; i2n/2, -i2n*0.3; -i2n/2, -i2n*0.3], lim);
+PO = tricircle(ax, res, [0, -i2n*0.3; i2n/2, -i2n*0.4; -i2n/2, -i2n*0.4], lim);
+O  = tricircle(ax, res, [0, -i2n*0.4; i2n/2, -i2n*0.5; -i2n/2, -i2n*0.5], lim);
 hor = [Fp AF F FC C CP P PO O];
 horNm = {'Fp' 'AF' 'F' 'FC' 'C' 'CP' 'P' 'PO' 'O'};
 
@@ -170,71 +171,43 @@ end
         close(app.Parent.Parent)
     end
 
-    function [obj] = tricircle(ax, res, pt1, pt2, pt3, lim)
-        if nargin < 3
-            error('Three input points are required.');
-        elseif ~isequal(numel(pt1),numel(pt2),numel(pt3),2)
-            error('The three input points should all have two elements.')
+    function [obj] = tricircle(ax, res, p, lim)       
+        % Differences & Gradients
+        delta = diff(p, 1, 1);
+        grad = delta(:,2) ./ delta(:,1);
+        if any(all( abs(delta) < 1/res, 1 )) % If points are all a straight line...
+            error('Cannot draw circle from straight line.'); % Throw an error
         end
-        pt1 = double(pt1);
-        pt2 = double(pt2);
-        pt3 = double(pt3);
-        epsilon = 0.000000001;
-        delta_a = pt2 - pt1;
-        delta_b = pt3 - pt2;
-        ax_is_0 = abs(delta_a(1)) <= epsilon;
-        bx_is_0 = abs(delta_b(1)) <= epsilon;
-        % check whether both lines are vertical - collinear
-        if ax_is_0 && bx_is_0
-            c = [0 0];
-            r = -1;
-            warning([mfilename ':CollinearPoints'],'Points are on a straight line (collinear).');
-            return
-        end
-        % make sure delta gradients are not vertical
-        % swap points to change deltas
-        if ax_is_0
-            tmp = pt2;
-            pt2 = pt3;
-            pt3 = tmp;
-            delta_a = pt2 - pt1;
-        end
-        if bx_is_0
-            tmp = pt1;
-            pt1 = pt2;
-            pt2 = tmp;
-            delta_b = pt3 - pt2;
-        end
-        grad_a = delta_a(2) / delta_a(1);
-        grad_b = delta_b(2) / delta_b(1);
-        % check whether the given points are collinear
-        if abs(grad_a-grad_b) <= epsilon
-            c = [0 0];
-            r = -1;
-            warning([mfilename ':CollinearPoints'],'Points are on a straight line (collinear).');
-            return
-        end
-        % swap grads and points if grad_a is 0
-        if abs(grad_a) <= epsilon
-            tmp = grad_a;
-            grad_a = grad_b;
-            grad_b = tmp;
-            tmp = pt1;
-            pt1 = pt3;
-            pt3 = tmp;
-        end
-        % calculate centre - where the lines perpendicular to the centre of
-        % segments a and b intersect.
-        c(1) = ( grad_a*grad_b*(pt1(2)-pt3(2)) + grad_b*(pt1(1)+pt2(1)) - grad_a*(pt2(1)+pt3(1)) ) / (2*(grad_b-grad_a));
-        c(2) = ((pt1(1)+pt2(1))/2 - c(1)) / grad_a + (pt1(2)+pt2(2))/2;
-        % calculate radius
-        r = norm(c - pt1);
         
+        % X Center
+        if all(~isinf(grad))
+            c(1) = prod(grad).*diff( p([1 3],2) ) + grad(1).*(p(2,1)+p(3,1)) - grad(2).*sum(p([2 1],1))./2*diff(grad([2 1]));
+        elseif isinf(grad(1))
+            c(1) =  grad(2) .* sum( [diff(p([1 3],2)), sum(p([3 2],1))] ) / 2;
+        elseif isinf(grad(2))
+            c(1) = diff( [sum(p([2 1],1)), grad(1).*diff(p([1 3],2))] ) /2;
+        else
+            error()
+        end
+        
+        % Y Center
+        if grad(1) ~= 0
+            c(2) = -1./grad(1).*( c(1)-sum(p([2 1],1))/2 ) + sum(p([2 1],2))/2;
+        else
+            c(2) = -1./grad(2).*(c(1)-sum(p([3 2],1))/2) + sum(p([2 3],2))/2;
+        end
+        
+        % Radius
+        r = norm(c - p(1,:));
+        
+        % Coords
         x = c(1)+r*cos(0:2*pi/res:2*pi); % Store x coords
         y = c(2)+r*sin(0:2*pi/res:2*pi); % Store y coord
+        
+        % Remove points outside the head
         i = x.^2 + y.^2 <= lim^2; % Cut off points outside the head
         
-        
+        % Draw line
         obj = line(ax, x(i), y(i), 'Color', 'k'); % Draw line
     end
 
